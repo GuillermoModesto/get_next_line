@@ -9,77 +9,71 @@
 /*   Updated: 2025/11/14 18:21:04 by guantino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "get_next_line.h"
+#include <stdio.h>
+
+int	ft_strlen(const char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i] != '\0')
+		i++;
+	return (i);
+}
+
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	int		i;
+	int		size1;
+	int		size2;
+	char	*new;
+
+	if (!s1 || !s2)
+		return (NULL);
+	i = 0;
+	size1 = ft_strlen(s1);
+	size2 = ft_strlen(s2);
+	new = (char *) malloc((size1 + size2) * sizeof(char));
+	if (!new)
+		return (NULL);
+	while (i < size1)
+	{
+		new[i] = s1[i];
+		i++;
+	}
+	while (i < (size1 + size2))
+	{
+		new[i] = s2[i - size1];
+		i++;
+	}
+	return (new);
+}
 
 char	*get_next_line(int fd)
 {
-	char	*mem;
-	int		buf_size;
-	int		i;
-
-	i = 0;
-	buf_size = def_buf_size;
-	mem = ft_malloc_line(buf_size + 1);
-	while (c != '\n')
-	{
-		if (read(fd, &c, 1) <= 0)
-		{
-			free(mem);
-			return (NULL);
-		}
-		mem[i] = c;
-		if (i >= buf_size)
-		{
-			mem = ft_remalloc_line(mem, buf_size + 1,
-					buf_size + def_buf_size + 1);
-			buf_size += 5;
-		}
-		i++;
-	}
-	mem[i] = '\0';
-	return (mem);
-}
-
-void	*ft_memset(char *s, char c, int n)
-{
+	int	buff_size;
 	int	i;
-
+	char	*c;
+	char	*line;
+	
+	buff_size = BUFFER_SIZE;
+	c = malloc(buff_size * sizeof(char));
+	line = malloc(buff_size * sizeof(char));
 	i = 0;
-	while (i < n)
+	if (!line)
+		return (NULL);
+	while (read(fd, c, buff_size))
 	{
-		s[i] = c;
+		write(1, c, buff_size);
 		i++;
 	}
-	return (s);
+	return (line);
 }
 
-void	*ft_memcpy(char *dest, char *src, int n)
+int main(int argc, char **argv)
 {
-	int	i;
-
-	i = 0;
-	while (i < n)
-	{
-		dest[i] = src[i];
-		i++;
-	}
-	return (dest);
-}
-
-char	*ft_malloc_line(int size)
-{
-	char	*str;
-
-	str = malloc(size);
-	ft_memset(str, '|', size);
-	return (str);
-}
-
-char	*ft_remalloc_line(char *mem, int old_size, int size)
-{
-	char	*aux_mem;
-
-	aux_mem = ft_malloc_line(size);
-	ft_memcpy(aux_mem, mem, old_size);
-	free(mem);
-	return (aux_mem);
+	(void)argc;
+	int fd = open(argv[1], O_RDONLY);
+	printf("%s", get_next_line(fd));
 }
