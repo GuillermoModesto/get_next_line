@@ -64,8 +64,7 @@ char	*ft_strjoin(char *s1, char *s2)
 		new[i] = s2[i - ft_strlen(s1)];
 		i++;
 	}
-	if (s1)
-		free(s1);
+	//free(s1);
 	new[i] = '\0';
 	return (new);
 }
@@ -100,14 +99,15 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 
 char	*get_next_line(int fd)
 {
-	char	*buff;
+	static char	*buff;
 	char	*aux;
 	int	r;
 	int	i;
 	
 	r = 0;
 	aux = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (!buff)
+		buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	i = 0;
 	while((r += read(fd, buff, BUFFER_SIZE)) && !ft_strchr(buff, '\n'))
 	{
@@ -130,6 +130,8 @@ int main(int argc, char **argv)
 {
 	(void)argc;
 	int fd = open(argv[1], O_RDONLY);
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
+	printf("%s\n", get_next_line(fd));
 }
