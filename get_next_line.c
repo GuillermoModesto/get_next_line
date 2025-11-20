@@ -65,16 +65,80 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (new);
 }
 
+void	*ft_memcpy(void *dest, const void *src, size_t count)
+{
+	size_t				i;
+	unsigned char		*dest_aux;
+	const unsigned char	*src_aux;
+
+	if (!dest && !src)
+		return (NULL);
+	i = 0;
+	dest_aux = (unsigned char *)dest;
+	src_aux = (const unsigned char *)src;
+	while (i < count)
+	{
+		dest_aux[i] = src_aux[i];
+		i++;
+	}
+	return (dest);
+}
+
+char	*ft_strdup(const char *s)
+{
+	int		len;
+	char	*str;
+
+	len = ft_strlen(s);
+	str = (char *) malloc(len * sizeof(char) + sizeof(char));
+	if (str == NULL)
+		return (NULL);
+	str = ft_memcpy(str, s, len + 1);
+	return (str);
+}
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	size_t	slen;
+	size_t	sub_len;
+	char	*new;
+	size_t	i;
+
+	if (!s)
+		return (NULL);
+	slen = ft_strlen(s);
+	if (start >= slen)
+		return (ft_strdup(""));
+	sub_len = slen - start;
+	if (sub_len > len)
+		sub_len = len;
+	new = (char *)malloc(sub_len + 1);
+	if (!new)
+		return (NULL);
+	i = 0;
+	while (i < sub_len)
+	{
+		new[i] = s[start + i];
+		i++;
+	}
+	new[i] = '\0';
+	return (new);
+}
+
 char	*get_next_line(int fd)
 {
 	char	*buff;
 	char	*aux;
 	int	r;
 	int	i;
+	int	first;
 	
+	first = 1;
+	r = 0;
 	aux = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	i = 0;
-	while((r = read(fd, buff, BUFFER_SIZE)) && !ft_strchr(buff, '\n'))
+	while((r += read(fd, buff, BUFFER_SIZE)) && !ft_strchr(buff, '\n'))
 	{
 		if (r == -1)
 		{
@@ -82,9 +146,20 @@ char	*get_next_line(int fd)
 			free(aux);
 			return (NULL);
 		}
-		aux[r] = '\0';
-		aux = ft_strjoin(aux, buff);
+		if (first)
+		{
+			aux = ft_strdup(buff);
+			first = 0;
+		}
+		else
+		{
+			aux[r] = 0;
+			aux = ft_strjoin(aux, buff);
+		}
 	}
+	while(buff[i] && buff[i] != '\n')
+		i++;
+	aux = ft_strjoin(aux, ft_substr(buff, 0, i));
 	return (aux);
 }
 
