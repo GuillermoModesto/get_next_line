@@ -64,7 +64,36 @@ char	*ft_strjoin(char *s1, char *s2)
 		new[i] = s2[i - ft_strlen(s1)];
 		i++;
 	}
-	free(s1);
+	if (s1)
+		free(s1);
+	new[i] = '\0';
+	return (new);
+}
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	size_t	slen;
+	size_t	sub_len;
+	char	*new;
+	size_t	i;
+
+	if (!s)
+		return (NULL);
+	slen = ft_strlen(s);
+	if (start >= slen)
+		return (NULL);
+	sub_len = slen - start;
+	if (sub_len > len)
+		sub_len = len;
+	new = (char *)malloc(sub_len + 1);
+	if (!new)
+		return (NULL);
+	i = 0;
+	while (i < sub_len)
+	{
+		new[i] = s[start + i];
+		i++;
+	}
 	new[i] = '\0';
 	return (new);
 }
@@ -91,11 +120,9 @@ char	*get_next_line(int fd)
 		aux[r] = 0;
 		aux = ft_strjoin(aux, buff);
 	}
-	/*
 	while(buff[i] && buff[i] != '\n')
 		i++;
 	aux = ft_strjoin(aux, ft_substr(buff, 0, i));
-	*/
 	return (aux);
 }
 
@@ -103,5 +130,6 @@ int main(int argc, char **argv)
 {
 	(void)argc;
 	int fd = open(argv[1], O_RDONLY);
+	printf("%s", get_next_line(fd));
 	printf("%s", get_next_line(fd));
 }
