@@ -6,13 +6,13 @@
 /*   By: guantino <guantino@student.42malaga.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 18:20:34 by guantino          #+#    #+#             */
-/*   Updated: 2025/11/14 18:21:04 by guantino         ###   ########.fr       */
+/*   Updated: 2025/11/28 13:02:36 by guantino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
 #include <stdio.h>
 
-int	ft_strlen(const char *s)
+static int	ft_strlen(const char *s)
 {
 	int	i;
 
@@ -22,7 +22,7 @@ int	ft_strlen(const char *s)
 	return (i);
 }
 
-char	*ft_strchr(const char *buf, int c)
+static char	*ft_strchr(const char *buf, int c)
 {
 	int	i;
 
@@ -38,38 +38,7 @@ char	*ft_strchr(const char *buf, int c)
 	return ((void *)0);
 }
 
-char	*ft_strjoin(char *s1, char *s2)
-{
-	int		i;
-	char	*new;
-
-	if (!s1)
-	{
-		s1 = malloc(sizeof (char));
-		s1[0] = 0;
-	}
-	if (!s1 || !s2)
-		return (NULL);
-	i = 0;
-	new = (char *) malloc((ft_strlen(s1) + ft_strlen(s2) + 1) * sizeof(char));
-	if (!new)
-		return (NULL);
-	while (i < ft_strlen(s1))
-	{
-		new[i] = s1[i];
-		i++;
-	}
-	while (i < (ft_strlen(s1) + ft_strlen(s2)))
-	{
-		new[i] = s2[i - ft_strlen(s1)];
-		i++;
-	}
-	//free(s1);
-	new[i] = '\0';
-	return (new);
-}
-
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+static char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	size_t	slen;
 	size_t	sub_len;
@@ -97,33 +66,124 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	return (new);
 }
 
+static char	*gnl_strjoin(char *s1, char *s2)
+{
+	char	*new;
+	int		len1;
+	int		len2;
+	int		i;
+	int		j;
+
+	if (!s1)
+	{
+		s1 = (char *)malloc(1);
+		if (!s1)
+			return (NULL);
+		s1[0] = '\0';
+	}
+	if (!s2)
+		return (s1);
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	new = (char *)malloc(len1 + len2 + 1);
+	if (!new)
+		return (NULL);
+	i = 0;
+	while (i < len1)
+	{
+		new[i] = s1[i];
+		i++;
+	}
+	j = 0;
+	while (j < len2)
+		new[i++] = s2[j++];
+	new[i] = '\0';
+	free(s1);
+	return (new);
+}
+
+static char	*read_to_buff(int fd, char *buff)
+{
+	char	*tmp;
+	int		r;
+
+	tmp = (char *)malloc(BUFFER_SIZE + 1);
+	if (!tmp)
+		return (NULL);
+	r = 1;
+	while (r > 0 && !ft_strchr(buff, '\n'))
+	{
+		r = read(fd, tmp, BUFFER_SIZE);
+		if (r < 0)
+		{
+			free(tmp);
+			free(buff);
+			return (NULL);
+		}
+		if (r == 0)
+			break ;
+		tmp[r] = '\0';
+		buff = gnl_strjoin(buff, tmp);
+		if (!buff)
+		{
+			free(tmp);
+			return (NULL);
+		}
+	}
+	free(tmp);
+	return (buff);
+}
+
+static char	*extract_line(char *buff)
+{
+	int		i;
+	char	*line;
+
+	if (!buff || !buff[0])
+		return (NULL);
+	i = 0;
+	while (buff[i] && buff[i] != '\n')
+		i++;
+	if (buff[i] == '\n')
+		i++;
+	line = ft_substr(buff, 0, i);
+	return (line);
+}
+
+static char	*save_remainder(char *buff)
+{
+	int		i;
+	char	*new_buff;
+
+	if (!buff)
+		return (NULL);
+	i = 0;
+	while (buff[i] && buff[i] != '\n')
+		i++;
+	if (!buff[i])
+	{
+		free(buff);
+		return (NULL);
+	}
+	i++;
+	new_buff = ft_substr(buff, i, ft_strlen(buff) - i);
+	free(buff);
+	return (new_buff);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*buff;
-	char	*aux;
-	int	r;
-	int	i;
-	
-	r = 0;
-	aux = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	char		*line;
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	buff = read_to_buff(fd, buff);
 	if (!buff)
-		buff = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	i = 0;
-	while((r += read(fd, buff, BUFFER_SIZE)) && !ft_strchr(buff, '\n'))
-	{
-		if (r == -1)
-		{
-			free(buff);
-			free(aux);
-			return (NULL);
-		}
-		aux[r] = 0;
-		aux = ft_strjoin(aux, buff);
-	}
-	while(buff[i] && buff[i] != '\n')
-		i++;
-	aux = ft_strjoin(aux, ft_substr(buff, 0, i));
-	return (aux);
+		return (NULL);
+	line = extract_line(buff);
+	buff = save_remainder(buff);
+	return (line);
 }
 
 int main(int argc, char **argv)
