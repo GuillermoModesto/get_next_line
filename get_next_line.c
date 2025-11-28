@@ -33,10 +33,7 @@ static char	*read_to_buff(int fd, char *buff)
 		tmp[r] = '\0';
 		buff = gnl_strjoin(buff, tmp);
 		if (!buff)
-		{
-			free(tmp);
-			return (NULL);
-		}
+			return (free(tmp), NULL);
 	}
 	free(tmp);
 	return (buff);
@@ -92,14 +89,4 @@ char	*get_next_line(int fd)
 	line = extract_line(buff);
 	buff = save_remainder(buff);
 	return (line);
-}
-
-int main(int argc, char **argv)
-{
-	(void)argc;
-	int fd = open(argv[1], O_RDONLY);
-	printf("%s\n", get_next_line(fd));
-	printf("%s\n", get_next_line(fd));
-	printf("%s\n", get_next_line(fd));
-	printf("%s\n", get_next_line(fd));
 }
