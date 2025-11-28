@@ -6,101 +6,11 @@
 /*   By: guantino <guantino@student.42malaga.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 18:20:34 by guantino          #+#    #+#             */
-/*   Updated: 2025/11/28 13:02:36 by guantino         ###   ########.fr       */
+/*   Updated: 2025/11/28 18:10:04 by guantino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
 #include <stdio.h>
-
-static int	ft_strlen(const char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] != '\0')
-		i++;
-	return (i);
-}
-
-static char	*ft_strchr(const char *buf, int c)
-{
-	int	i;
-
-	i = 0;
-	while (buf[i])
-	{
-		if (buf[i] == (unsigned char)c)
-			return ((char *)(buf + i));
-		i++;
-	}
-	if ((unsigned char)c == '\0')
-		return ((char *)(buf + i));
-	return ((void *)0);
-}
-
-static char	*ft_substr(char const *s, unsigned int start, size_t len)
-{
-	size_t	slen;
-	size_t	sub_len;
-	char	*new;
-	size_t	i;
-
-	if (!s)
-		return (NULL);
-	slen = ft_strlen(s);
-	if (start >= slen)
-		return (NULL);
-	sub_len = slen - start;
-	if (sub_len > len)
-		sub_len = len;
-	new = (char *)malloc(sub_len + 1);
-	if (!new)
-		return (NULL);
-	i = 0;
-	while (i < sub_len)
-	{
-		new[i] = s[start + i];
-		i++;
-	}
-	new[i] = '\0';
-	return (new);
-}
-
-static char	*gnl_strjoin(char *s1, char *s2)
-{
-	char	*new;
-	int		len1;
-	int		len2;
-	int		i;
-	int		j;
-
-	if (!s1)
-	{
-		s1 = (char *)malloc(1);
-		if (!s1)
-			return (NULL);
-		s1[0] = '\0';
-	}
-	if (!s2)
-		return (s1);
-	len1 = ft_strlen(s1);
-	len2 = ft_strlen(s2);
-	new = (char *)malloc(len1 + len2 + 1);
-	if (!new)
-		return (NULL);
-	i = 0;
-	while (i < len1)
-	{
-		new[i] = s1[i];
-		i++;
-	}
-	j = 0;
-	while (j < len2)
-		new[i++] = s2[j++];
-	new[i] = '\0';
-	free(s1);
-	return (new);
-}
 
 static char	*read_to_buff(int fd, char *buff)
 {
@@ -110,16 +20,14 @@ static char	*read_to_buff(int fd, char *buff)
 	tmp = (char *)malloc(BUFFER_SIZE + 1);
 	if (!tmp)
 		return (NULL);
+	if (!buff)
+		buff = malloc(BUFFER_SIZE + 1);
 	r = 1;
 	while (r > 0 && !ft_strchr(buff, '\n'))
 	{
 		r = read(fd, tmp, BUFFER_SIZE);
 		if (r < 0)
-		{
-			free(tmp);
-			free(buff);
-			return (NULL);
-		}
+			return (free(tmp), free(buff), NULL);
 		if (r == 0)
 			break ;
 		tmp[r] = '\0';
@@ -139,12 +47,12 @@ static char	*extract_line(char *buff)
 	int		i;
 	char	*line;
 
-	if (!buff || !buff[0])
+	if (!buff)
 		return (NULL);
+	if (!buff[0])
+		return (buff);
 	i = 0;
 	while (buff[i] && buff[i] != '\n')
-		i++;
-	if (buff[i] == '\n')
 		i++;
 	line = ft_substr(buff, 0, i);
 	return (line);
