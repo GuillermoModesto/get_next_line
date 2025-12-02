@@ -54,8 +54,7 @@ static char	*extract_line(char *buff)
 	i = 0;
 	while (buff[i] && buff[i] != '\n')
 		i++;
-	if (buff[i] == '\n')
-		i++;
+	i++;
 	line = ft_substr(buff, 0, i);
 	return (line);
 }
@@ -86,7 +85,7 @@ char	*get_next_line(int fd)
 	static char	*buff;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd <= 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	buff = read_to_buff(fd, buff);
 	if (!buff)
@@ -95,3 +94,16 @@ char	*get_next_line(int fd)
 	buff = save_remainder(buff);
 	return (line);
 }
+/*
+int main (int argc, char **argv)
+{
+	int fd = open (argv[1], O_RDONLY);
+	char *line = get_next_line(fd);
+	while (line != NULL)
+	{
+		printf("%s", line);
+		line = get_next_line(fd);
+	}
+	close(fd);
+}
+*/
