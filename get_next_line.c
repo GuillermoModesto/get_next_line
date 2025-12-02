@@ -54,6 +54,8 @@ static char	*extract_line(char *buff)
 	i = 0;
 	while (buff[i] && buff[i] != '\n')
 		i++;
+	if (buff[i] == '\n')
+		i++;
 	line = ft_substr(buff, 0, i);
 	return (line);
 }
