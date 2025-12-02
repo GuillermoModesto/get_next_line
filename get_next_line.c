@@ -12,6 +12,18 @@
 #include "get_next_line.h"
 #include <stdio.h>
 
+static char	*check_buff(char *buff, char *tmp)
+{
+	if (!buff)
+	{
+		buff = (char *)malloc(1);
+		if (!buff)
+			return (free(tmp), NULL);
+		buff[0] = '\0';
+	}
+	return (buff);
+}
+
 static char	*read_to_buff(int fd, char *buff)
 {
 	char	*tmp;
@@ -20,13 +32,7 @@ static char	*read_to_buff(int fd, char *buff)
 	tmp = (char *)malloc(BUFFER_SIZE + 1);
 	if (!tmp)
 		return (NULL);
-	if (!buff)
-	{
-		buff = (char *)malloc(1);
-		if (!buff)
-			return (free(tmp), NULL);
-		buff[0] = '\0';
-	}
+	buff = check_buff(buff, tmp);
 	r = 1;
 	while (r > 0 && !ft_strchr(buff, '\n'))
 	{
@@ -40,8 +46,7 @@ static char	*read_to_buff(int fd, char *buff)
 		if (!buff)
 			return (free(tmp), NULL);
 	}
-	free(tmp);
-	return (buff);
+	return (free(tmp), buff);
 }
 
 static char	*extract_line(char *buff)
@@ -85,7 +90,7 @@ char	*get_next_line(int fd)
 	static char	*buff;
 	char		*line;
 
-	if (fd <= 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	buff = read_to_buff(fd, buff);
 	if (!buff)
