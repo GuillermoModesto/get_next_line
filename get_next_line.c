@@ -49,10 +49,8 @@ static char	*extract_line(char *buff)
 	int		i;
 	char	*line;
 
-	if (!buff)
+	if (!buff || !buff[0])
 		return (NULL);
-	if (!buff[0])
-		return (buff);
 	i = 0;
 	while (buff[i] && buff[i] != '\n')
 		i++;
