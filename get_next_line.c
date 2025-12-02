@@ -21,7 +21,12 @@ static char	*read_to_buff(int fd, char *buff)
 	if (!tmp)
 		return (NULL);
 	if (!buff)
-		buff = malloc(BUFFER_SIZE + 1);
+	{
+		buff = (char *)malloc(1);
+		if (!buff)
+			return (free(tmp), NULL);
+		buff[0] = '\0';
+	}
 	r = 1;
 	while (r > 0 && !ft_strchr(buff, '\n'))
 	{
