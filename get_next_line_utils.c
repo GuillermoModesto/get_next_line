@@ -48,6 +48,8 @@ static char	*ft_strdup(const char *s)
 	if (len == 0)
 	{
 		str = malloc(sizeof(char));
+		if (!str)
+			return (NULL);
 		str[0] = 0;
 		return (str);
 	}
