@@ -192,10 +192,3 @@ get_next_line(fd) → NULL
 
 ---
 
-Si deseas, puedo generar:
-
-- Una versión más formal o más visual.
-- Diagramas de flujo explicativos.
-- README en inglés.
-- Un PDF con la documentación.
-
